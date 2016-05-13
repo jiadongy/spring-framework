@@ -30,13 +30,13 @@ import org.springframework.core.ResolvableType;
  * this interface.
  *
  * <p>If this is a {@link HierarchicalBeanFactory}, the return values will <i>not</i>
- * take any BeanFactory hierarchy into account, but will relate only to the beans
+ * take any BeanFactory hierarchy into account, but will relate only to the beans papi 该接口中定义的listable方法范围只局限于本层beanfactory
  * defined in the current factory. Use the {@link BeanFactoryUtils} helper class
  * to consider beans in ancestor factories too.
  *
  * <p>The methods in this interface will just respect bean definitions of this factory.
  * They will ignore any singleton beans that have been registered by other means like
- * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}'s
+ * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}'s papi listable方法将忽视通过其他途径手动注册的bean,但beanFactory接口的getBean不会忽视
  * {@code registerSingleton} method, with the exception of
  * {@code getBeanNamesOfType} and {@code getBeansOfType} which will check
  * such manually registered singletons too. Of course, BeanFactory's {@code getBean}

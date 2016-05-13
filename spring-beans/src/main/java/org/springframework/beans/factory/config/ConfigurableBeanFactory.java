@@ -38,7 +38,7 @@ import org.springframework.util.StringValueResolver;
  * <p>This bean factory interface is not meant to be used in normal application
  * code: Stick to {@link org.springframework.beans.factory.BeanFactory} or
  * {@link org.springframework.beans.factory.ListableBeanFactory} for typical
- * needs. This extended interface is just meant to allow for framework-internal
+ * needs. This extended interface is just meant to allow for framework-internal papi 此接口提供了配置beanFactory的方法
  * plug'n'play and for special access to bean factory configuration methods.
  *
  * @author Juergen Hoeller

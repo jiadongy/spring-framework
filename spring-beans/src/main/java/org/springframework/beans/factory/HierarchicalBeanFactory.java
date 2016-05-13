@@ -22,7 +22,7 @@ package org.springframework.beans.factory;
  *
  * <p>The corresponding {@code setParentBeanFactory} method for bean
  * factories that allow setting the parent in a configurable
- * fashion can be found in the ConfigurableBeanFactory interface.
+ * fashion can be found in the ConfigurableBeanFactory interface. papi 这是给applicationContext用的接口,功能有限
  *
  * @author Rod Johnson
  * @author Juergen Hoeller

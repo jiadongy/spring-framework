@@ -133,9 +133,16 @@ configure(allprojects) { project ->
 		exclude(["**/Abstract*.class", '**/*$*'])
 	}
 
+	
 	repositories {
 		maven { url "https://repo.spring.io/libs-release" }
 	}
+	
+	/**
+	repositories {
+		maven { url "http://maven.oschina.net/content/groups/public/" }
+	}
+	**/
 
 	dependencies {
 		testCompile("junit:junit:${junitVersion}") {

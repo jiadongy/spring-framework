@@ -33,22 +33,22 @@ import org.springframework.beans.factory.BeanFactory;
  * or {@link org.springframework.beans.factory.ListableBeanFactory} for
  * typical use cases.
  *
- * <p>Integration code for other frameworks can leverage this interface to
+ * <p>Integration code for other frameworks can leverage this interface to papi 来个具体场景看看?
  * wire and populate existing bean instances that Spring does not control
  * the lifecycle of. This is particularly useful for WebWork Actions and
  * Tapestry Page objects, for example.
  *
  * <p>Note that this interface is not implemented by
- * {@link org.springframework.context.ApplicationContext} facades,
+ * {@link org.springframework.context.ApplicationContext} facades, papi facade 门面模式
  * as it is hardly ever used by application code. That said, it is available
  * from an application context too, accessible through ApplicationContext's
- * {@link org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()}
+ * {@link org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()} papi 普通用不到,但能还能访问到,看一下ac中的这个方法
  * method.
  *
  * <p>You may also implement the {@link org.springframework.beans.factory.BeanFactoryAware}
  * interface, which exposes the internal BeanFactory even when running in an
  * ApplicationContext, to get access to an AutowireCapableBeanFactory:
- * simply cast the passed-in BeanFactory to AutowireCapableBeanFactory.
+ * simply cast the passed-in BeanFactory to AutowireCapableBeanFactory. papi 实现类都实现autowire的接口? pipa DefaultListableBeanFactory类实现了ConfigurableListableBeanFactory接口,该接口继承了三种不同的beanFactory接口
  *
  * @author Juergen Hoeller
  * @since 04.12.2003

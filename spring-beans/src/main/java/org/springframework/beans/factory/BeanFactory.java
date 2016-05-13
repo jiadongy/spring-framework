@@ -23,28 +23,28 @@ import org.springframework.core.ResolvableType;
  * The root interface for accessing a Spring bean container.
  * This is the basic client view of a bean container;
  * further interfaces such as {@link ListableBeanFactory} and
- * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}
+ * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory} papi 不是给普通用户用的(applicationContext)
  * are available for specific purposes.
  *
  * <p>This interface is implemented by objects that hold a number of bean definitions,
  * each uniquely identified by a String name. Depending on the bean definition,
- * the factory will return either an independent instance of a contained object
+ * the factory will return either an independent instance of a contained object papi contained object ?
  * (the Prototype design pattern), or a single shared instance (a superior
  * alternative to the Singleton design pattern, in which the instance is a
  * singleton in the scope of the factory). Which type of instance will be returned
  * depends on the bean factory configuration: the API is the same. Since Spring
  * 2.0, further scopes are available depending on the concrete application
- * context (e.g. "request" and "session" scopes in a web environment).
+ * context (e.g. "request" and "session" scopes in a web environment). papi 什么区别? further scoprs?
  *
  * <p>The point of this approach is that the BeanFactory is a central registry
  * of application components, and centralizes configuration of application
  * components (no more do individual objects need to read properties files,
  * for example). See chapters 4 and 11 of "Expert One-on-One J2EE Design and
- * Development" for a discussion of the benefits of this approach.
+ * Development" for a discussion of the benefits of this approach. papi 作为反例的ejb没有配置中心?
  *
  * <p>Note that it is generally better to rely on Dependency Injection
  * ("push" configuration) to configure application objects through setters
- * or constructors, rather than use any form of "pull" configuration like a
+ * or constructors, rather than use any form of "pull" configuration like a pipa pull mode (意思是conf分散到各个beanFactory,需要BeanFactory查找)
  * BeanFactory lookup. Spring's Dependency Injection functionality is
  * implemented using this BeanFactory interface and its subinterfaces.
  *
@@ -53,7 +53,7 @@ import org.springframework.core.ResolvableType;
  * package to configure the beans. However, an implementation could simply return
  * Java objects it creates as necessary directly in Java code. There are no
  * constraints on how the definitions could be stored: LDAP, RDBMS, XML,
- * properties file, etc. Implementations are encouraged to support references
+ * properties file, etc. Implementations are encouraged to support references papi 什么意思?
  * amongst beans (Dependency Injection).
  *
  * <p>In contrast to the methods in {@link ListableBeanFactory}, all of the
@@ -63,7 +63,7 @@ import org.springframework.core.ResolvableType;
  * are supposed to override beans of the same name in any parent factory.
  *
  * <p>Bean factory implementations should support the standard bean lifecycle interfaces
- * as far as possible. The full set of initialization methods and their standard order is:<br>
+ * as far as possible. The full set of initialization methods and their standard order is:<br> papi 这些接口必须实现?
  * 1. BeanNameAware's {@code setBeanName}<br>
  * 2. BeanClassLoaderAware's {@code setBeanClassLoader}<br>
  * 3. BeanFactoryAware's {@code setBeanFactory}<br>
@@ -108,7 +108,7 @@ import org.springframework.core.ResolvableType;
 public interface BeanFactory {
 
 	/**
-	 * Used to dereference a {@link FactoryBean} instance and distinguish it from
+	 * Used to dereference a {@link FactoryBean} instance and distinguish it from papi &解引用符号能获得bean的factory而不是factory创建的实例
 	 * beans <i>created</i> by the FactoryBean. For example, if the bean named
 	 * {@code myJndiObject} is a FactoryBean, getting {@code &myJndiObject}
 	 * will return the factory, not the instance returned by the factory.
