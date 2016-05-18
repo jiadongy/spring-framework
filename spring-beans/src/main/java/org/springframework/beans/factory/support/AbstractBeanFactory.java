@@ -81,7 +81,7 @@ import org.springframework.util.StringValueResolver;
  * Abstract base class for {@link org.springframework.beans.factory.BeanFactory}
  * implementations, providing the full capabilities of the
  * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory} SPI.
- * Does <i>not</i> assume a listable bean factory: can therefore also be used
+ * Does <i>not</i> assume a listable bean factory: can therefore also be used papi 为了处理从后端获取bean definition这种昂贵行为,该beanFactory基类不支持对bean factory的list行为
  * as base class for bean factory implementations which obtain bean definitions
  * from some backend resource (where bean definition access is an expensive operation).
  *
@@ -94,9 +94,9 @@ import org.springframework.util.StringValueResolver;
  * hierarchy (delegating to the parent in case of an unknown bean), through implementing
  * the {@link org.springframework.beans.factory.HierarchicalBeanFactory} interface.
  *
- * <p>The main template methods to be implemented by subclasses are
+ * <p>The main template methods to be implemented by subclasses are papi 获得bean和创建bean方法,为什么不在该类实现?
  * {@link #getBeanDefinition} and {@link #createBean}, retrieving a bean definition
- * for a given bean name and creating a bean instance for a given bean definition,
+ * for a given bean name and creating a bean instance for a given bean definition, papi 获得bean和创建bean要分成两个方法,为什么?
  * respectively. Default implementations of those operations can be found in
  * {@link DefaultListableBeanFactory} and {@link AbstractAutowireCapableBeanFactory}.
  *

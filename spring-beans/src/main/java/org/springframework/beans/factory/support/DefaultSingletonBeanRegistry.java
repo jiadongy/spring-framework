@@ -47,7 +47,7 @@ import org.springframework.util.StringUtils;
  *
  * <p>Also supports registration of
  * {@link org.springframework.beans.factory.DisposableBean} instances,
- * (which might or might not correspond to registered singletons),
+ * (which might or might not correspond to registered singletons), papi 可能和已注册的单例一样或者不一样
  * to be destroyed on shutdown of the registry. Dependencies between
  * beans can be registered to enforce an appropriate shutdown order.
  *
@@ -57,7 +57,7 @@ import org.springframework.util.StringUtils;
  * the {@link org.springframework.beans.factory.config.ConfigurableBeanFactory}
  * interface extends the {@link SingletonBeanRegistry} interface.
  *
- * <p>Note that this class assumes neither a bean definition concept
+ * <p>Note that this class assumes neither a bean definition concept papi 该类不承担bean definition概念和bean实例的创建过程,和XXXBeanFactory相反
  * nor a specific creation process for bean instances, in contrast to
  * {@link AbstractBeanFactory} and {@link DefaultListableBeanFactory}
  * (which inherit from it). Can alternatively also be used as a nested

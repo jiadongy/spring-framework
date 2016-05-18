@@ -45,7 +45,7 @@ import org.springframework.core.AliasRegistry;
  * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader
  * @see PropertiesBeanDefinitionReader
  */
-public interface BeanDefinitionRegistry extends AliasRegistry {
+public interface BeanDefinitionRegistry extends AliasRegistry { //papi 两个registry接口完全不同功能,有必要extends吗?
 
 	/**
 	 * Register a new bean definition with this registry.

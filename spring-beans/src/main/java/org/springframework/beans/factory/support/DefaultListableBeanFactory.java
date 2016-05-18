@@ -79,10 +79,10 @@ import org.springframework.util.StringUtils;
 /**
  * Default implementation of the
  * {@link org.springframework.beans.factory.ListableBeanFactory} and
- * {@link BeanDefinitionRegistry} interfaces: a full-fledged bean factory
+ * {@link BeanDefinitionRegistry} interfaces: a full-fledged bean factory //pipa 充分资格的BeanFactory
  * based on bean definition objects.
  *
- * <p>Typical usage is registering all bean definitions first (possibly read
+ * <p>Typical usage is registering all bean definitions first (possibly read papi 不典型的是register时初始化bean
  * from a bean definition file), before accessing beans. Bean definition lookup
  * is therefore an inexpensive operation in a local bean definition table,
  * operating on pre-built bean definition metadata objects.
