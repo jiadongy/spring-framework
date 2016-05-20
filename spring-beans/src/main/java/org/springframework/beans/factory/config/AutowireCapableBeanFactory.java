@@ -25,7 +25,7 @@ import org.springframework.beans.factory.BeanFactory;
 /**
  * Extension of the {@link org.springframework.beans.factory.BeanFactory}
  * interface to be implemented by bean factories that are capable of
- * autowiring, provided that they want to expose this functionality for
+ * autowiring, provided that they want to expose this functionality for papi 把atuowire功能暴露给bean是不常用的功能
  * existing bean instances.
  *
  * <p>This subinterface of BeanFactory is not meant to be used in normal
@@ -39,7 +39,7 @@ import org.springframework.beans.factory.BeanFactory;
  * Tapestry Page objects, for example.
  *
  * <p>Note that this interface is not implemented by
- * {@link org.springframework.context.ApplicationContext} facades, papi facade 门面模式
+ * {@link org.springframework.context.ApplicationContext} facades, pipa facade 门面模式
  * as it is hardly ever used by application code. That said, it is available
  * from an application context too, accessible through ApplicationContext's
  * {@link org.springframework.context.ApplicationContext#getAutowireCapableBeanFactory()} papi 普通用不到,但能还能访问到,看一下ac中的这个方法
@@ -115,7 +115,7 @@ public interface AutowireCapableBeanFactory extends BeanFactory {
 	 * {@link BeanPostProcessor BeanPostProcessors}.
 	 * <p>Note: This is intended for creating a fresh instance, populating annotated
 	 * fields and methods as well as applying all standard bean initialization callbacks.
-	 * It does <i>not</> imply traditional by-name or by-type autowiring of properties;
+	 * It does <i>not</> imply traditional by-name or by-type autowiring of properties; //papi ?
 	 * use {@link #createBean(Class, int, boolean)} for those purposes.
 	 * @param beanClass the class of the bean to create
 	 * @return the new bean instance

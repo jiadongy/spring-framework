@@ -19,7 +19,7 @@ package org.springframework.beans.factory.config;
 /**
  * Interface that defines a registry for shared bean instances.
  * Can be implemented by {@link org.springframework.beans.factory.BeanFactory}
- * implementations in order to expose their singleton management facility
+ * implementations in order to expose their singleton management facility papi 统一的单例管理接口For BeanFactory
  * in a uniform manner.
  *
  * <p>The {@link ConfigurableBeanFactory} interface extends this interface.
@@ -35,7 +35,7 @@ public interface SingletonBeanRegistry {
 	/**
 	 * Register the given existing object as singleton in the bean registry,
 	 * under the given bean name.
-	 * <p>The given instance is supposed to be fully initialized; the registry
+	 * <p>The given instance is supposed to be fully initialized; the registry papi 用于注册单例对象,那prototype用什么registry?
 	 * will not perform any initialization callbacks (in particular, it won't
 	 * call InitializingBean's {@code afterPropertiesSet} method).
 	 * The given instance will not receive any destruction callbacks

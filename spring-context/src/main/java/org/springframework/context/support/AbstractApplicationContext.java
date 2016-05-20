@@ -83,7 +83,7 @@ import org.springframework.util.StringValueResolver;
 /**
  * Abstract implementation of the {@link org.springframework.context.ApplicationContext}
  * interface. Doesn't mandate the type of storage used for configuration; simply
- * implements common context functionality. Uses the Template Method design pattern,
+ * implements common context functionality. Uses the Template Method design pattern, pipa 设计模式:摸板模式
  * requiring concrete subclasses to implement abstract methods.
  *
  * <p>In contrast to a plain BeanFactory, an ApplicationContext is supposed

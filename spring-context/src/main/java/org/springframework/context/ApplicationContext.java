@@ -37,7 +37,7 @@ import org.springframework.core.io.support.ResourcePatternResolver;
  * Inherited from the {@link ApplicationEventPublisher} interface.
  * <li>The ability to resolve messages, supporting internationalization.
  * Inherited from the {@link MessageSource} interface.
- * <li>Inheritance from a parent context. Definitions in a descendant context
+ * <li>Inheritance from a parent context. Definitions in a descendant context pipa 上级ac优先级更高->下级ac彼此隔离
  * will always take priority. This means, for example, that a single parent
  * context can be used by an entire web application, while each servlet has
  * its own child context that is independent of that of any other servlet.

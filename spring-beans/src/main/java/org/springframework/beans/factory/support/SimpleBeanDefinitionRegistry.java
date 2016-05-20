@@ -29,7 +29,7 @@ import org.springframework.util.StringUtils;
 /**
  * Simple implementation of the {@link BeanDefinitionRegistry} interface.
  * Provides registry capabilities only, with no factory capabilities built in.
- * Can for example be used for testing bean definition readers.
+ * Can for example be used for testing bean definition readers. papi BenDefinition注册Example
  *
  * @author Juergen Hoeller
  * @since 2.5.2
