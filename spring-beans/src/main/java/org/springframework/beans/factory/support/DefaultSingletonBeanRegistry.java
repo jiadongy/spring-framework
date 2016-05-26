@@ -461,11 +461,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			return true;
 		}
 		for (String transitiveDependency : dependentBeans) {
-			if (alreadySeen == null) {
+			if (alreadySeen == null) {//papa alreadySeen是cache,整个递归链上都能看见
 				alreadySeen = new HashSet<String>();
 			}
 			alreadySeen.add(beanName);
-			if (isDependent(transitiveDependency, dependentBeanName, alreadySeen)) {
+			if (isDependent(transitiveDependency, dependentBeanName, alreadySeen)) {//papa 递归判断子节点是否依赖父节点
 				return true;
 			}
 		}

@@ -240,10 +240,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
+		//papa 先从cache中看有没有现成的
 		Object sharedInstance = getSingleton(beanName);
-		if (sharedInstance != null && args == null) {
+		if (sharedInstance != null && args == null) { //papi 为什么需要args == null?? pipa 因为如果有传参,生成的bean肯定和没有传参的不一样了
 			if (logger.isDebugEnabled()) {
-				if (isSingletonCurrentlyInCreation(beanName)) {
+				if (isSingletonCurrentlyInCreation(beanName)) {//papi 为什么这个只是记录log,没有throw??? pipa 反正bean实例已经拿到了
+																// papi 那这种情况在什么时候发生??????????
 					logger.debug("Returning eagerly cached instance of singleton bean '" + beanName +
 							"' that is not fully initialized yet - a consequence of a circular reference");
 				}
@@ -251,19 +253,19 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
 				}
 			}
-			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);
+			bean = getObjectForBeanInstance(sharedInstance, name, beanName, null);//papa 该API处理普通bean/FactoryBean的情况,分别返回自身/其产品
 		}
-
+		//papa cache中没有现成的
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
-			if (isPrototypeCurrentlyInCreation(beanName)) {
+			if (isPrototypeCurrentlyInCreation(beanName)) { //papa 原理和 @see isSingletonCurrentlyInCreation 一致
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
 			// Check if bean definition exists in this factory.
 			BeanFactory parentBeanFactory = getParentBeanFactory();
-			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
+			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {//papa 递归查找bean
 				// Not found -> check parent.
 				String nameToLookup = originalBeanName(name);
 				if (args != null) {
@@ -279,20 +281,20 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			if (!typeCheckOnly) {
 				markBeanAsCreated(beanName);
 			}
-
+			//papa 在本层beanFactory找到了bean
 			try {
-				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
+				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);//papi RootBeanDefinition????
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dependsOnBean : dependsOn) {
-						if (isDependent(beanName, dependsOnBean)) {
+						if (isDependent(beanName, dependsOnBean)) {//papa 如果子节点依赖父节点,则是循环依赖,throw!!
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dependsOnBean + "'");
 						}
-						registerDependentBean(dependsOnBean, beanName);
+						registerDependentBean(dependsOnBean, beanName);//papa 向HashMap添加pair
 						getBean(dependsOnBean);
 					}
 				}
@@ -301,7 +303,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, new ObjectFactory<Object>() {
 						@Override
-						public Object getObject() throws BeansException {
+						public Object getObject() throws BeansException {//papa 该lamada为了lazily create Bean
 							try {
 								return createBean(beanName, mbd, args);
 							}
@@ -330,7 +332,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
-				else {
+				else { //papi Scope?????????????
 					String scopeName = mbd.getScope();
 					final Scope scope = this.scopes.get(scopeName);
 					if (scope == null) {
@@ -365,7 +367,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 		}
 
-		// Check if required type matches the type of the actual bean instance.
+		// Check if required type matches the type of the actual bean instance.//papa 最后做个类型检查,看实际的和定义的是否一致
 		if (requiredType != null && bean != null && !requiredType.isAssignableFrom(bean.getClass())) {
 			try {
 				return getTypeConverter().convertIfNecessary(bean, requiredType);
