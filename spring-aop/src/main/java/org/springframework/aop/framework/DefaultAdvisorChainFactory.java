@@ -58,14 +58,14 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 		AdvisorAdapterRegistry registry = GlobalAdvisorAdapterRegistry.getInstance();
 
 		for (Advisor advisor : config.getAdvisors()) {
-			if (advisor instanceof PointcutAdvisor) {
+			if (advisor instanceof PointcutAdvisor) { //papa 1.PointCutAdvisor:对method进行增强
 				// Add it conditionally.
 				PointcutAdvisor pointcutAdvisor = (PointcutAdvisor) advisor;
 				if (config.isPreFiltered() || pointcutAdvisor.getPointcut().getClassFilter().matches(actualClass)) {
 					MethodInterceptor[] interceptors = registry.getInterceptors(advisor);
 					MethodMatcher mm = pointcutAdvisor.getPointcut().getMethodMatcher();
 					if (MethodMatchers.matches(mm, method, actualClass, hasIntroductions)) {
-						if (mm.isRuntime()) {
+						if (mm.isRuntime()) { //papi ????
 							// Creating a new object instance in the getInterceptors() method
 							// isn't a problem as we normally cache created chains.
 							for (MethodInterceptor interceptor : interceptors) {
@@ -78,7 +78,8 @@ public class DefaultAdvisorChainFactory implements AdvisorChainFactory, Serializ
 					}
 				}
 			}
-			else if (advisor instanceof IntroductionAdvisor) {
+			//papa 2.IntroductionAdvisor:和上面一样也是3种interceptor(before,after,throw),不过是直接把interceptor加进去list
+			else if (advisor instanceof IntroductionAdvisor) { //papi 什么是introduction??? pipa 对class增强其方法和属性
 				IntroductionAdvisor ia = (IntroductionAdvisor) advisor;
 				if (config.isPreFiltered() || ia.getClassFilter().matches(actualClass)) {
 					Interceptor[] interceptors = registry.getInterceptors(advisor);

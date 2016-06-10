@@ -23,7 +23,7 @@ import org.springframework.util.Assert;
 
 /**
  * Base class for proxy factories.
- * Provides convenient access to a configurable AopProxyFactory.
+ * Provides convenient access to a configurable AopProxyFactory.papa 提供可配置的AopProxyFactory
  *
  * @author Juergen Hoeller
  * @since 2.0.3

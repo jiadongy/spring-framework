@@ -39,7 +39,7 @@ import org.springframework.util.ClassUtils;
  * based on JDK {@link java.lang.reflect.Proxy dynamic proxies}.
  *
  * <p>Creates a dynamic proxy, implementing the interfaces exposed by
- * the AopProxy. Dynamic proxies <i>cannot</i> be used to proxy methods
+ * the AopProxy. Dynamic proxies <i>cannot</i> be used to proxy methods papi 动态代理不能代理方法???
  * defined in classes, rather than interfaces.
  *
  * <p>Objects of this type should be obtained through proxy factories,
@@ -47,7 +47,7 @@ import org.springframework.util.ClassUtils;
  * to Spring's AOP framework and need not be used directly by client code.
  *
  * <p>Proxies created using this class will be thread-safe if the
- * underlying (target) class is thread-safe.
+ * underlying (target) class is thread-safe. papa 和targetClass一样线程安全,是否可序列化也同理
  *
  * <p>Proxies are serializable so long as all Advisors (including Advices
  * and Pointcuts) and the TargetSource are serializable.
@@ -118,7 +118,7 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 			logger.debug("Creating JDK dynamic proxy: target source is " + this.advised.getTargetSource());
 		}
 		Class<?>[] proxiedInterfaces = AopProxyUtils.completeProxiedInterfaces(this.advised, true);
-		findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);
+		findDefinedEqualsAndHashCodeMethods(proxiedInterfaces);//papi 为什么要找equals和hashcode方法???
 		return Proxy.newProxyInstance(classLoader, proxiedInterfaces, this);
 	}
 
@@ -174,9 +174,9 @@ final class JdkDynamicAopProxy implements AopProxy, InvocationHandler, Serializa
 				return AopProxyUtils.ultimateTargetClass(this.advised);
 			}
 			else if (!this.advised.opaque && method.getDeclaringClass().isInterface() &&
-					method.getDeclaringClass().isAssignableFrom(Advised.class)) {
+					method.getDeclaringClass().isAssignableFrom(Advised.class)) { //papi 什么意思??
 				// Service invocations on ProxyConfig with the proxy config...
-				return AopUtils.invokeJoinpointUsingReflection(this.advised, method, args);
+				return AopUtils.invokeJoinpointUsingReflection(this.advised, method, args);//papa 直接调用target方法
 			}
 
 			Object retVal;

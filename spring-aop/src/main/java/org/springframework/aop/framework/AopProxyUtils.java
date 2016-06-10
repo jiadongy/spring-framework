@@ -117,7 +117,7 @@ public abstract class AopProxyUtils {
 			}
 		}
 		boolean addSpringProxy = !advised.isInterfaceProxied(SpringProxy.class);
-		boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);
+		boolean addAdvised = !advised.isOpaque() && !advised.isInterfaceProxied(Advised.class);//papi 有什么用???
 		boolean addDecoratingProxy = (decoratingProxy && !advised.isInterfaceProxied(DecoratingProxy.class));
 		int nonUserIfcCount = 0;
 		if (addSpringProxy) {

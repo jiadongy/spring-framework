@@ -16,7 +16,7 @@
 
 package org.springframework.beans.factory;
 
-/**
+/** papi ??????????????????
  * Interface to be implemented by beans that want to release resources
  * on destruction. A BeanFactory is supposed to invoke the destroy
  * method if it disposes a cached singleton. An application context

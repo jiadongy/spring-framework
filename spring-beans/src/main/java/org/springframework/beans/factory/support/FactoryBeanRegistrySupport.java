@@ -31,7 +31,7 @@ import org.springframework.beans.factory.FactoryBean;
 import org.springframework.beans.factory.FactoryBeanNotInitializedException;
 
 /**
- * Support base class for singleton registries which need to handle  papi 支持单例的Registry能处理factoryBean实例.为什么要处理?
+ * Support base class for singleton registries which need to handle  papa factoryBean本身一定是单例
  * {@link org.springframework.beans.factory.FactoryBean} instances,
  * integrated with {@link DefaultSingletonBeanRegistry}'s singleton management.
  *

@@ -62,17 +62,17 @@ import org.springframework.util.ObjectUtils;
  * <p>Global interceptors and advisors can be added at the factory level. The specified
  * ones are expanded in an interceptor list where an "xxx*" entry is included in the
  * list, matching the given prefix with the bean names (e.g. "global*" would match
- * both "globalBean1" and "globalBean2", "*" all defined interceptors). The matching
+ * both "globalBean1" and "globalBean2", "*" all defined interceptors). The matching papa 通配符后按照本身的Order顺序返回
  * interceptors get applied according to their returned order value, if they implement
  * the {@link org.springframework.core.Ordered} interface.
  *
- * <p>Creates a JDK proxy when proxy interfaces are given, and a CGLIB proxy for the
- * actual target class if not. Note that the latter will only work if the target class
+ * <p>Creates a JDK proxy when proxy interfaces are given, and a CGLIB proxy for the papi ????
+ * actual target class if not. Note that the latter will only work if the target class papi cglib限制:不能有final方法
  * does not have final methods, as a dynamic subclass will be created at runtime.
  *
  * <p>It's possible to cast a proxy obtained from this factory to {@link Advised},
  * or to obtain the ProxyFactoryBean reference and programmatically manipulate it.
- * This won't work for existing prototype references, which are independent. However,
+ * This won't work for existing prototype references, which are independent. However,//papi ?????
  * it will work for prototypes subsequently obtained from the factory. Changes to
  * interception will work immediately on singletons (including existing references).
  * However, to change interfaces or target it's necessary to obtain a new instance
@@ -240,8 +240,8 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 * @return a fresh AOP proxy reflecting the current state of this factory
 	 */
 	@Override
-	public Object getObject() throws BeansException {
-		initializeAdvisorChain();
+	public Object getObject() throws BeansException { //papa 返回一个AOP Proxy
+		initializeAdvisorChain();//papa 初始化advisor链 (即interceptor链)
 		if (isSingleton()) {
 			return getSingletonInstance();
 		}
@@ -308,7 +308,8 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	 */
 	private synchronized Object getSingletonInstance() {
 		if (this.singletonInstance == null) {
-			this.targetSource = freshTargetSource();
+			this.targetSource = freshTargetSource(); //papa 就是返回设置的targetsource或者interceptor chain的最后一个bean
+			//papa 意思是自动检测接口on,没有设置需要被代理的接口,又设置了只代理targetClass的指定接口,那就需要系统告诉我们去代理那个接口了(就是活的全部接口)
 			if (this.autodetectInterfaces && getProxiedInterfaces().length == 0 && !isProxyTargetClass()) {
 				// Rely on AOP infrastructure to tell us what interfaces to proxy.
 				Class<?> targetClass = getTargetClass();
@@ -318,8 +319,8 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 				setInterfaces(ClassUtils.getAllInterfacesForClass(targetClass, this.proxyClassLoader));
 			}
 			// Initialize the shared singleton instance.
-			super.setFrozen(this.freezeProxy);
-			this.singletonInstance = getProxy(createAopProxy());
+			super.setFrozen(this.freezeProxy);//papa 根据proxyFactoryBean设置,如果冻结,将不能继续添加advice
+			this.singletonInstance = getProxy(createAopProxy());//papa 调的父类ProxyCreateSupport,其中包含DefaultAopProxyFactory
 		}
 		return this.singletonInstance;
 	}
@@ -415,7 +416,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 
 	/**
 	 * Create the advisor (interceptor) chain. Advisors that are sourced
-	 * from a BeanFactory will be refreshed each time a new prototype instance
+	 * from a BeanFactory will be refreshed each time a new prototype instance //papi 当新的prototype实例加进来后,Advisors被刷新,怎么刷新????
 	 * is added. Interceptors added programmatically through the factory API
 	 * are unaffected by such changes.
 	 */
@@ -448,7 +449,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 								"Can only use global advisors or interceptors with a ListableBeanFactory");
 					}
 					addGlobalAdvisor((ListableBeanFactory) this.beanFactory,
-							name.substring(0, name.length() - GLOBAL_SUFFIX.length()));
+							name.substring(0, name.length() - GLOBAL_SUFFIX.length()));//papi ?????
 				}
 
 				else {
@@ -460,7 +461,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 						advice = this.beanFactory.getBean(name);
 					}
 					else {
-						// It's a prototype Advice or Advisor: replace with a prototype.
+						// It's a prototype Advice or Advisor: replace with a prototype.//papi 通知器/通知都放到一起注册吗???
 						// Avoid unnecessary creation of prototype bean just for advisor chain initialization.
 						advice = new PrototypePlaceholderAdvisor(name);
 					}
@@ -506,7 +507,7 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 	}
 
 	/**
-	 * Add all global interceptors and pointcuts.
+	 * Add all global interceptors and pointcuts. papi 两个什么区别??????
 	 */
 	private void addGlobalAdvisor(ListableBeanFactory beanFactory, String prefix) {
 		String[] globalAdvisorNames =
@@ -529,14 +530,14 @@ public class ProxyFactoryBean extends ProxyCreatorSupport
 		for (Object bean : beans) {
 			String name = names.get(bean);
 			if (name.startsWith(prefix)) {
-				addAdvisorOnChainCreation(bean, name);
+				addAdvisorOnChainCreation(bean, name);//papa 就是添加advisor,只在initializeAdvisorChain方法中被调用
 			}
 		}
 	}
 
 	/**
 	 * Invoked when advice chain is created.
-	 * <p>Add the given advice, advisor or object to the interceptor list.
+	 * <p>Add the given advice, advisor or object to the interceptor list.papa 拦截器列表有三种可加
 	 * Because of these three possibilities, we can't type the signature
 	 * more strongly.
 	 * @param next advice, advisor or target object

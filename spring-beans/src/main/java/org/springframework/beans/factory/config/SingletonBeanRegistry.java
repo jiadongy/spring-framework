@@ -19,7 +19,7 @@ package org.springframework.beans.factory.config;
 /**
  * Interface that defines a registry for shared bean instances.
  * Can be implemented by {@link org.springframework.beans.factory.BeanFactory}
- * implementations in order to expose their singleton management facility papi 统一的单例管理接口For BeanFactory
+ * implementations in order to expose their singleton management facility papa 统一的单例管理接口(register/get/contains)
  * in a uniform manner.
  *
  * <p>The {@link ConfigurableBeanFactory} interface extends this interface.

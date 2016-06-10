@@ -47,12 +47,12 @@ import org.springframework.util.CollectionUtils;
  * These are not themselves AOP proxies, but subclasses of this class are
  * normally factories from which AOP proxy instances are obtained directly.
  *
- * <p>This class frees subclasses of the housekeeping of Advices
+ * <p>This class frees subclasses of the housekeeping of Advices papa 负责AOP Proxy实例的管理Advice功能,创建实例由子类实现
  * and Advisors, but doesn't actually implement proxy creation
  * methods, which are provided by subclasses.
  *
  * <p>This class is serializable; subclasses need not be.
- * This class is used to hold snapshots of proxies.
+ * This class is used to hold snapshots of proxies. papi proxy的快照????
  *
  * @author Rod Johnson
  * @author Juergen Hoeller
@@ -90,7 +90,7 @@ public class AdvisedSupport extends ProxyConfig implements Advised {
 	private List<Class<?>> interfaces = new ArrayList<Class<?>>();
 
 	/**
-	 * List of Advisors. If an Advice is added, it will be wrapped
+	 * List of Advisors. If an Advice is added, it will be wrapped papa Advice被Wrap成Advisor
 	 * in an Advisor before being added to this List.
 	 */
 	private List<Advisor> advisors = new LinkedList<Advisor>();

@@ -81,7 +81,7 @@ import org.springframework.util.StringValueResolver;
  * Abstract base class for {@link org.springframework.beans.factory.BeanFactory}
  * implementations, providing the full capabilities of the
  * {@link org.springframework.beans.factory.config.ConfigurableBeanFactory} SPI.
- * Does <i>not</i> assume a listable bean factory: can therefore also be used papi 为了处理从后端获取bean definition这种昂贵行为,该beanFactory基类不支持对bean factory的list行为
+ * Does <i>not</i> assume a listable bean factory: can therefore also be used papa 为了处理从后端获取bean definition这种昂贵行为,该beanFactory基类不支持对bean factory的list行为
  * as base class for bean factory implementations which obtain bean definitions
  * from some backend resource (where bean definition access is an expensive operation).
  *

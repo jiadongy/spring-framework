@@ -29,7 +29,7 @@ import org.springframework.util.StringValueResolver;
 /**
  * Simple implementation of the {@link AliasRegistry} interface.
  * Serves as base class for
- * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry} //papi 作为DefaultListableBeanFactory的基类
+ * {@link org.springframework.beans.factory.support.BeanDefinitionRegistry} //papa 作为DefaultListableBeanFactory的基类
  * implementations.
  *
  * @author Juergen Hoeller
