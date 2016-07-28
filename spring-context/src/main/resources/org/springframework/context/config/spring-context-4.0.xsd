@@ -168,6 +168,7 @@
 		</xsd:complexType>
 	</xsd:element>
 
+<!--papa 重要的有@Autowire,@Post系列,@Resource-->
 	<xsd:element name="annotation-config">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[
@@ -188,6 +189,13 @@
 		</xsd:annotation>
 	</xsd:element>
 
+<!--papa 打开stereotypes发现(@Service等)
+BeanDefinitionParserDelegate.parseCustomElement(ele)解析xml<beans>的顶层tag时
+遇到<component-scan>(namespace=context)元素会自动用localName(eg.component-scan)
+调用DefaultNamespaceHandlerResolver.resolve(namespaceUri)获得具体的(eg.context)NamespaceHandler,
+用init()将context空间下的各个localName对应的Parser注册到上下文的parser字典中,
+然后找到其实现类ComponentScanBeanDefinitionParser(实现了NamespaceHandler)解析Element并设置base-package等属性
+-->
 	<xsd:element name="component-scan">
 		<xsd:annotation>
 			<xsd:documentation><![CDATA[

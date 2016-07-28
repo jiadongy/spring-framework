@@ -67,7 +67,7 @@ public class DefaultNamespaceHandlerResolver implements NamespaceHandlerResolver
 	private volatile Map<String, Object> handlerMappings;
 
 
-	/**
+	/** papa 从spring.jar!META-INF/spring.handlers载入属性文件,得到namespace->namespaceHandler实现类
 	 * Create a new {@code DefaultNamespaceHandlerResolver} using the
 	 * default mapping file location.
 	 * <p>This constructor will result in the thread context ClassLoader being used

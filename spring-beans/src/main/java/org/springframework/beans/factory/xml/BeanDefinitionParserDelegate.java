@@ -1401,7 +1401,9 @@ public class BeanDefinitionParserDelegate {
 		return parseCustomElement(ele, null);
 	}
 
+	//papa 解析Xml 自定义element(自定义的namespace)的重要方法
 	public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingBd) {
+		//papa namespaceURI是 eg.<spring xmlns:c="http://www.baidu.com"/>
 		String namespaceUri = getNamespaceURI(ele);
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {

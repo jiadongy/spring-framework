@@ -51,7 +51,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.Assert;
 import org.springframework.util.ClassUtils;
 
-/**
+/** papa 扫描@Component,@Controller,@Repository,@Service注解的Bean
  * A component provider that scans the classpath from a base package. It then
  * applies exclude and include filters to the resulting classes to find candidates.
  *

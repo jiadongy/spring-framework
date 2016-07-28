@@ -111,7 +111,7 @@ public abstract class AbstractRefreshableApplicationContext extends AbstractAppl
 	}
 
 
-	/**
+	/** papa 主流程load Bean的重要部分
 	 * This implementation performs an actual refresh of this context's underlying
 	 * bean factory, shutting down the previous bean factory (if any) and
 	 * initializing a fresh bean factory for the next phase of the context's lifecycle.

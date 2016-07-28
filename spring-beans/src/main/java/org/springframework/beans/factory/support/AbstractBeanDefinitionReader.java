@@ -188,7 +188,7 @@ public abstract class AbstractBeanDefinitionReader implements EnvironmentCapable
 		return loadBeanDefinitions(location, null);
 	}
 
-	/**
+	/** papa 主流程load Bean的重要部分
 	 * Load bean definitions from the specified resource location.
 	 * <p>The location can also be a location pattern, provided that the
 	 * ResourceLoader of this bean definition reader is a ResourcePatternResolver.

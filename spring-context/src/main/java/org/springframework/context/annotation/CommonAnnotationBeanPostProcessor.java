@@ -83,7 +83,7 @@ import org.springframework.util.StringValueResolver;
  * and destroy annotation, respectively - through inheriting from
  * {@link InitDestroyAnnotationBeanPostProcessor} with pre-configured annotation types.
  *
- * <p>The central element is the {@link javax.annotation.Resource} annotation
+ * <p>The central element is the {@link javax.annotation.Resource} annotation //papa !!!!
  * for annotation-driven injection of named beans, by default from the containing
  * Spring BeanFactory, with only {@code mappedName} references resolved in JNDI.
  * The {@link #setAlwaysUseJndiLookup "alwaysUseJndiLookup" flag} enforces JNDI lookups

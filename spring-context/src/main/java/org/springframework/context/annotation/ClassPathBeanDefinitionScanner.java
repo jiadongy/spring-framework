@@ -216,7 +216,7 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 
 
 	/**
-	 * Perform a scan within the specified base packages.
+	 * Perform a scan within the specified base packages. //papa 扫描@Service注册的bean
 	 * @param basePackages the packages to check for annotated classes
 	 * @return number of beans registered
 	 */
