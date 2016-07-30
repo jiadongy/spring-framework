@@ -264,7 +264,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 
 			// Check if bean definition exists in this factory.
-			BeanFactory parentBeanFactory = getParentBeanFactory();
+			BeanFactory parentBeanFactory = getParentBeanFactory();//papa 先查找父beanFactory!!!
 			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {//papa 递归查找bean
 				// Not found -> check parent.
 				String nameToLookup = originalBeanName(name);
