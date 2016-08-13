@@ -247,7 +247,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				if (isSingletonCurrentlyInCreation(beanName)) {//papi 为什么这个只是记录log,没有throw??? pipa 反正bean实例已经拿到了
 																// papi 那这种情况在什么时候发生??????????
 					logger.debug("Returning eagerly cached instance of singleton bean '" + beanName +
-							"' that is not fully initialized yet - a consequence of a circular reference");
+							"'that is not fully initialized yet - a consequence of a circular reference");
 				}
 				else {
 					logger.debug("Returning cached instance of singleton bean '" + beanName + "'");
@@ -283,10 +283,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 			//papa 在本层beanFactory找到了bean
 			try {
-				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);//papi RootBeanDefinition????
+				//papa RootBeanDefinition(=merged BeanDefinition)
+				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
+				//papa get依赖的Bean
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dependsOnBean : dependsOn) {
@@ -319,10 +321,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
-				else if (mbd.isPrototype()) {
+				else if (mbd.isPrototype()) { //papa 创建prototype bean
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
+						//papa 对比singleton生成多了beforePrototypeCreation/afterPrototypeCreation
 						beforePrototypeCreation(beanName);
 						prototypeInstance = createBean(beanName, mbd, args);
 					}
@@ -332,7 +335,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
-				else { //papi Scope?????????????
+				else { //papa Scope default(singleton)/prototype/request/session/global_session
 					String scopeName = mbd.getScope();
 					final Scope scope = this.scopes.get(scopeName);
 					if (scope == null) {
@@ -1256,11 +1259,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					mbd.overrideFrom(bd);
 				}
 
+				//papa 下面片段不管是不是child Bean都会执行
 				// Set default singleton scope, if not configured before.
 				if (!StringUtils.hasLength(mbd.getScope())) {
 					mbd.setScope(RootBeanDefinition.SCOPE_SINGLETON);
 				}
 
+				//papa prototypeBean中不可能包含singleton,就算他包含了singletonBean一样的实例!!
 				// A bean contained in a non-singleton bean cannot be a singleton itself.
 				// Let's correct this on the fly here, since this might be the result of
 				// parent-child merging for the outer bean, in which case the original inner bean
@@ -1582,6 +1587,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			return beanInstance;
 		}
 
+		//papa 下面是对FactoryBean的处理
 		Object object = null;
 		if (mbd == null) {
 			object = getCachedObjectForFactoryBean(beanName);

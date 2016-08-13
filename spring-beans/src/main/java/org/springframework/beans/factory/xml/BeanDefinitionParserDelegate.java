@@ -488,6 +488,8 @@ public class BeanDefinitionParserDelegate {
 				}
 			}
 			String[] aliasesArray = StringUtils.toStringArray(aliases);
+			//papa AbstractBeanDefinition中没有BeanId和BeanName,只有Class;
+			//papa beanId或者自动生成的beanId作为BeanDefinitionHolder的key,beanName(alias)独立注册为BeanRegistry的key
 			return new BeanDefinitionHolder(beanDefinition, beanName, aliasesArray);
 		}
 

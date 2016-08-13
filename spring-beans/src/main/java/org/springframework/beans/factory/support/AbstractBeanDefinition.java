@@ -509,7 +509,8 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * @see #AUTOWIRE_CONSTRUCTOR
 	 * @see #AUTOWIRE_BY_TYPE
 	 */
-	public int getResolvedAutowireMode() {
+	public int
+	getResolvedAutowireMode() {
 		if (this.autowireMode == AUTOWIRE_AUTODETECT) {
 			// Work out whether to apply setter autowiring or constructor autowiring.
 			// If it has a no-arg constructor it's deemed to be setter autowiring,
@@ -914,7 +915,7 @@ public abstract class AbstractBeanDefinition extends BeanMetadataAttributeAccess
 	 * @throws BeanDefinitionValidationException in case of validation failure
 	 */
 	public void validate() throws BeanDefinitionValidationException {
-		if (!getMethodOverrides().isEmpty() && getFactoryMethodName() != null) {
+		if (!getMethodOverrides().isEmpty() && getFactoryMethodName() != null) {//papi ???????
 			throw new BeanDefinitionValidationException(
 					"Cannot combine static factory method with method overrides: " +
 					"the static factory method must create the instance");
