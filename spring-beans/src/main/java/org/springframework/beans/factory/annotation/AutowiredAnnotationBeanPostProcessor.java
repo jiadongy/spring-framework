@@ -93,11 +93,11 @@ import org.springframework.util.StringUtils;
  * Bean property setter methods are effectively just a special case of such a
  * general config method. Config methods do not have to be public.
  *
- * <p>Note: A default AutowiredAnnotationBeanPostProcessor will be registered
+ * <p>Note: A default AutowiredAnnotationBeanPostProcessor will be registered //papa XML "context:annotation-config" and "context:component-scan" 时自动注册
  * by the "context:annotation-config" and "context:component-scan" XML tags.
  * Remove or turn off the default annotation configuration there if you intend
  * to specify a custom AutowiredAnnotationBeanPostProcessor bean definition.
- * <p><b>NOTE:</b> Annotation injection will be performed <i>before</i> XML injection;
+ * <p><b>NOTE:</b> Annotation injection will be performed <i>before</i> XML injection;//papa 注解注入 先于 XML注入
  * thus the latter configuration will override the former for properties wired through
  * both approaches.
  *

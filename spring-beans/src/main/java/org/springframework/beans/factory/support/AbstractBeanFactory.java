@@ -240,12 +240,13 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		Object bean;
 
 		// Eagerly check singleton cache for manually registered singletons.
-		//papa 先从cache中看有没有现成的
+        // papa 先从cache（singletonObjects -> earlySingletonObjects -> earlySingletonObjects）中看有没有现成的
 		Object sharedInstance = getSingleton(beanName);
-		if (sharedInstance != null && args == null) { //papi 为什么需要args == null?? pipa 因为如果有传参,生成的bean肯定和没有传参的不一样了
+        //papa args == null,说明不是有参constructor构造。另外如果有传参，生成的bean肯定和没有传参的不一样
+		if (sharedInstance != null && args == null) {
 			if (logger.isDebugEnabled()) {
-				if (isSingletonCurrentlyInCreation(beanName)) {//papi 为什么这个只是记录log,没有throw??? pipa 反正bean实例已经拿到了
-																// papi 那这种情况在什么时候发生??????????
+				if (isSingletonCurrentlyInCreation(beanName)) {
+					//papa "循环引用"下会发生isSingletonCurrentlyInCreation=true，因为spring可以处理这种情况，所以只是记录log,没有throw。否则只是正常返回singleton的cache中的实例
 					logger.debug("Returning eagerly cached instance of singleton bean '" + beanName +
 							"'that is not fully initialized yet - a consequence of a circular reference");
 				}
@@ -259,13 +260,15 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 		else {
 			// Fail if we're already creating this bean instance:
 			// We're assumably within a circular reference.
-			if (isPrototypeCurrentlyInCreation(beanName)) { //papa 原理和 @see isSingletonCurrentlyInCreation 一致
+            //papa 原理和isSingletonCurrentlyInCreation一致。 spring不能处理prototype循环引用，因为没有cache其实例
+			if (isPrototypeCurrentlyInCreation(beanName)) {
 				throw new BeanCurrentlyInCreationException(beanName);
 			}
 
 			// Check if bean definition exists in this factory.
-			BeanFactory parentBeanFactory = getParentBeanFactory();//papa 先查找父beanFactory!!!
-			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {//papa 递归查找bean
+			BeanFactory parentBeanFactory = getParentBeanFactory();
+			//papa 先查找父beanFactory，递归查找bean! 双亲委派模型
+			if (parentBeanFactory != null && !containsBeanDefinition(beanName)) {
 				// Not found -> check parent.
 				String nameToLookup = originalBeanName(name);
 				if (args != null) {
@@ -278,25 +281,28 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				}
 			}
 
+            //papa 在alreadyCreated中添加bean,说明马上要开始create了。如果是typeCheckOnly（不是实际使用的bean，而是为了类型检查生成的bean？？），则跳过。
 			if (!typeCheckOnly) {
 				markBeanAsCreated(beanName);
 			}
-			//papa 在本层beanFactory找到了bean
+
+			//papa 在本层beanFactory去找或者生成bean
 			try {
-				//papa RootBeanDefinition(=merged BeanDefinition)
+				//papa RootBeanDefinition(=merged BeanDefinition)？？？？
 				final RootBeanDefinition mbd = getMergedLocalBeanDefinition(beanName);
 				checkMergedBeanDefinition(mbd, beanName, args);
 
 				// Guarantee initialization of beans that the current bean depends on.
-				//papa get依赖的Bean
+				//papa 初始化当前bean所依赖的Bean
 				String[] dependsOn = mbd.getDependsOn();
 				if (dependsOn != null) {
 					for (String dependsOnBean : dependsOn) {
-						if (isDependent(beanName, dependsOnBean)) {//papa 如果子节点依赖父节点,则是循环依赖,throw!!
+                        //papa 如果dependsOnBean依赖beanName(即在依赖树上前者在上，后者在下)，则是循环"depends-on"，throw异常，终止doGetBean()
+						if (isDependent(beanName, dependsOnBean)) {
 							throw new BeanCreationException(mbd.getResourceDescription(), beanName,
 									"Circular depends-on relationship between '" + beanName + "' and '" + dependsOnBean + "'");
 						}
-						registerDependentBean(dependsOnBean, beanName);//papa 向HashMap添加pair
+						registerDependentBean(dependsOnBean, beanName);//papa 向两个map中添加entry：dependentBeanMap,dependenciesForBeanMap
 						getBean(dependsOnBean);
 					}
 				}
@@ -305,7 +311,7 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 				if (mbd.isSingleton()) {
 					sharedInstance = getSingleton(beanName, new ObjectFactory<Object>() {
 						@Override
-						public Object getObject() throws BeansException {//papa 该lamada为了lazily create Bean
+						public Object getObject() throws BeansException {
 							try {
 								return createBean(beanName, mbd, args);
 							}
@@ -318,10 +324,12 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 							}
 						}
 					});
+					//papa 处理普通Bean还是FactoryBean两种情况
 					bean = getObjectForBeanInstance(sharedInstance, name, beanName, mbd);
 				}
 
-				else if (mbd.isPrototype()) { //papa 创建prototype bean
+                //papa 创建prototype bean
+				else if (mbd.isPrototype()) {
 					// It's a prototype -> create a new instance.
 					Object prototypeInstance = null;
 					try {
@@ -335,7 +343,8 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 					bean = getObjectForBeanInstance(prototypeInstance, name, beanName, mbd);
 				}
 
-				else { //papa Scope default(singleton)/prototype/request/session/global_session
+                //papa Scope default(singleton)/prototype。         request/session/global_session
+				else {
 					String scopeName = mbd.getScope();
 					final Scope scope = this.scopes.get(scopeName);
 					if (scope == null) {
@@ -370,9 +379,11 @@ public abstract class AbstractBeanFactory extends FactoryBeanRegistrySupport imp
 			}
 		}
 
-		// Check if required type matches the type of the actual bean instance.//papa 最后做个类型检查,看实际的和定义的是否一致
+        //papa 最后做个类型检查,看实际的和定义的是否一致，如果不一致的话尝试类型转化
+		// Check if required type matches the type of the actual bean instance.
 		if (requiredType != null && bean != null && !requiredType.isAssignableFrom(bean.getClass())) {
 			try {
+			    //papa ConditionalGenericConverter.convert()接口 eg.ArrayToCollectionConverter，ObjectToArrayConverter
 				return getTypeConverter().convertIfNecessary(bean, requiredType);
 			}
 			catch (TypeMismatchException ex) {

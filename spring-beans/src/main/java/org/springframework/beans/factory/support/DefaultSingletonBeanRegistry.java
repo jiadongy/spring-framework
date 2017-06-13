@@ -162,7 +162,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		synchronized (this.singletonObjects) {
 			if (!this.singletonObjects.containsKey(beanName)) {
 				this.singletonFactories.put(beanName, singletonFactory);
-				this.earlySingletonObjects.remove(beanName);
+				this.earlySingletonObjects.remove(beanName);//papa why？？？ singletonFactory代表需要重新生成单例，从原来的cache中删除
 				this.registeredSingletons.add(beanName);
 			}
 		}
@@ -181,6 +181,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * @param allowEarlyReference whether early references should be created or not
 	 * @return the registered singleton object, or {@code null} if none found
 	 */
+	//papa 先从singletonObjects获取，拿不到且beanName正在创建中，从earlySingletonObjects获取，拿不到且allowEarlyReference，从singletonFactories获得生成器生成单例
 	protected Object getSingleton(String beanName, boolean allowEarlyReference) {
 		Object singletonObject = this.singletonObjects.get(beanName);
 		if (singletonObject == null && isSingletonCurrentlyInCreation(beanName)) {
@@ -207,6 +208,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 	 * with, if necessary
 	 * @return the registered singleton object
 	 */
+    //pipa 先从singletonObjects获取，拿不到再从singletonFactory生成
 	public Object getSingleton(String beanName, ObjectFactory<?> singletonFactory) {
 		Assert.notNull(beanName, "'beanName' must not be null");
 		synchronized (this.singletonObjects) {
@@ -220,6 +222,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 				if (logger.isDebugEnabled()) {
 					logger.debug("Creating shared instance of singleton bean '" + beanName + "'");
 				}
+                //papa 此处在singletonsCurrentlyInCreation添加一个bean
 				beforeSingletonCreation(beanName);
 				boolean newSingleton = false;
 				boolean recordSuppressedExceptions = (this.suppressedExceptions == null);
@@ -227,6 +230,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					this.suppressedExceptions = new LinkedHashSet<Exception>();
 				}
 				try {
+				    //papa 关键句：生成bean实例
 					singletonObject = singletonFactory.getObject();
 					newSingleton = true;
 				}
@@ -253,6 +257,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 					afterSingletonCreation(beanName);
 				}
 				if (newSingleton) {
+				    //papa ADD singletonObjects,registeredSingletons; REMOVE singletonFactories,earlySingletonObjects
 					addSingleton(beanName, singletonObject);
 				}
 			}
@@ -419,7 +424,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		}
 
 		// No entry yet -> fully synchronized manipulation of the dependentBeans Set
-		synchronized (this.dependentBeanMap) {
+		synchronized (this.dependentBeanMap) {//papa beanName -> dependentBeanName
 			dependentBeans = this.dependentBeanMap.get(canonicalName);
 			if (dependentBeans == null) {
 				dependentBeans = new LinkedHashSet<String>(8);
@@ -427,7 +432,7 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			}
 			dependentBeans.add(dependentBeanName);
 		}
-		synchronized (this.dependenciesForBeanMap) {
+		synchronized (this.dependenciesForBeanMap) {//papa dependentBeanName -> beanName
 			Set<String> dependenciesForBean = this.dependenciesForBeanMap.get(dependentBeanName);
 			if (dependenciesForBean == null) {
 				dependenciesForBean = new LinkedHashSet<String>(8);
@@ -448,12 +453,13 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 		return isDependent(beanName, dependentBeanName, null);
 	}
 
+	//papa 深度优先的图遍历
 	private boolean isDependent(String beanName, String dependentBeanName, Set<String> alreadySeen) {
 		String canonicalName = canonicalName(beanName);
-		if (alreadySeen != null && alreadySeen.contains(beanName)) {
+		if (alreadySeen != null && alreadySeen.contains(beanName)) {//papi A->B->A,问isDependent(A,A)???   应该是true吧？？？
 			return false;
 		}
-		Set<String> dependentBeans = this.dependentBeanMap.get(canonicalName);
+		Set<String> dependentBeans = this.dependentBeanMap.get(canonicalName);//papa canonicalName的所有前驱节点
 		if (dependentBeans == null) {
 			return false;
 		}
@@ -461,11 +467,11 @@ public class DefaultSingletonBeanRegistry extends SimpleAliasRegistry implements
 			return true;
 		}
 		for (String transitiveDependency : dependentBeans) {
-			if (alreadySeen == null) {//papa alreadySeen是cache,整个递归链上都能看见
-				alreadySeen = new HashSet<String>();
+			if (alreadySeen == null) {
+				alreadySeen = new HashSet<String>();//papa alreadySeen：所有已访问的前驱节点
 			}
 			alreadySeen.add(beanName);
-			if (isDependent(transitiveDependency, dependentBeanName, alreadySeen)) {//papa 递归判断子节点是否依赖父节点
+			if (isDependent(transitiveDependency, dependentBeanName, alreadySeen)) {//papa 递归遍历所有前驱结点
 				return true;
 			}
 		}

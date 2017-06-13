@@ -101,6 +101,7 @@ public abstract class AbstractXmlApplicationContext extends AbstractRefreshableC
 	 * @param reader the bean definition reader used by this context
 	 * @see org.springframework.beans.factory.xml.XmlBeanDefinitionReader#setDocumentReaderClass
 	 */
+
 	protected void initBeanDefinitionReader(XmlBeanDefinitionReader reader) {
 		reader.setValidating(this.validating);
 	}

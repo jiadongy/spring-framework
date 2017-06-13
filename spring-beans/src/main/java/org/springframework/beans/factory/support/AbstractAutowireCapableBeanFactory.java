@@ -450,7 +450,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		RootBeanDefinition mbdToUse = mbd;
 
 		// Make sure bean class is actually resolved at this point, and
-		// clone the bean definition in case of a dynamically resolved Class
+		// clone the bean definition in case of a dynamically resolved Class //papi 什么情况有dynamically resolved Class？？？
 		// which cannot be stored in the shared merged bean definition.
 		Class<?> resolvedClass = resolveBeanClass(mbd, beanName);
 		if (resolvedClass != null && !mbd.hasBeanClass() && mbd.getBeanClassName() != null) {
@@ -458,7 +458,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			mbdToUse.setBeanClass(resolvedClass);
 		}
 
-		// Prepare method overrides. //papi overrides是spring一个feature???
+		// Prepare method overrides.
+		//papa <lookup-method>,<replace-method>用于解决在singleton中引用定义为prototype的实例，却实际上还是singleton的问题。原理：使用cglib替换原来的方法
 		try {
 			mbdToUse.prepareMethodOverrides();
 		}
@@ -468,7 +469,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		try {
-			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.//papi 如果有postProcessor,则会返回Proxy!!!
+			// Give BeanPostProcessors a chance to return a proxy instead of the target bean instance.
+			// papa InstantiationAwareBeanPostProcessor，postProcessor可能会返回任意对象，包括Proxy！Spring把postProcessor返回的对象作为bean实例，跳过之后的doCreateBean()
 			Object bean = resolveBeforeInstantiation(beanName, mbdToUse);
 			if (bean != null) {
 				return bean;
@@ -503,11 +505,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	protected Object doCreateBean(final String beanName, final RootBeanDefinition mbd, final Object[] args) {
 		// Instantiate the bean.
 		BeanWrapper instanceWrapper = null;
+		//papa factoryBeanInstanceCache获取FactoryBean实例 -> createBeanInstance()真正创建bean实例(返回Wrapper)
 		if (mbd.isSingleton()) {
 			instanceWrapper = this.factoryBeanInstanceCache.remove(beanName);
 		}
 		if (instanceWrapper == null) {
-			instanceWrapper = createBeanInstance(beanName, mbd, args);//papa 真正创建bean实例(返回Wrapper)
+			instanceWrapper = createBeanInstance(beanName, mbd, args);//papa 从三种策略选择：工厂方法，有参构造器autowire，无参构造器
 		}
 		final Object bean = (instanceWrapper != null ? instanceWrapper.getWrappedInstance() : null);
 		Class<?> beanType = (instanceWrapper != null ? instanceWrapper.getWrappedClass() : null);
@@ -520,9 +523,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			}
 		}
 
-		// Eagerly cache singletons to be able to resolve circular references //papi eagerly cache 是什么feature???earlyBean是什么鬼???
+		// Eagerly cache singletons to be able to resolve circular references
 		// even when triggered by lifecycle interfaces like BeanFactoryAware.
-		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences && //papi 为什么可以允许循环依赖
+		boolean earlySingletonExposure = (mbd.isSingleton() && this.allowCircularReferences && //papa 前提是允许循环引用 eg. A->B->A
 				isSingletonCurrentlyInCreation(beanName));
 		if (earlySingletonExposure) {
 			if (logger.isDebugEnabled()) {
@@ -532,6 +535,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			addSingletonFactory(beanName, new ObjectFactory<Object>() {
 				@Override
 				public Object getObject() throws BeansException {
+					//papa 如果没有SmartInstantiationAwareBeanPostProcessor.getEarlyBeanReference()，则返回bean本身！（此时的bean刚被实例化）
 					return getEarlyBeanReference(beanName, mbd, bean);
 				}
 			});
@@ -540,9 +544,16 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		// Initialize the bean instance.
 		Object exposedObject = bean;
 		try {
-			populateBean(beanName, mbd, instanceWrapper); //papa 填充属性
+			//papa 填充属性
+			populateBean(beanName, mbd, instanceWrapper);
 			if (exposedObject != null) {
-				exposedObject = initializeBean(beanName, exposedObject, mbd); //papi 初始化方法和postBeanProcessor处理???
+				/** @Reference:http://www.cnblogs.com/zrtqsk/p/3735273.html */
+				//papa 执行顺序为:
+				//papa Step1 in invokeAwareMethods(): BeanNameAware.setBeanName(),BeanClassLoaderAware.setBeanClassLoader(),BeanFactoryAware.setBeanFactory()
+				//papa Step2: postProcessBeforeInitialization(),可能返回一个proxy
+				//papa Step3 in invokeInitMethod(): InitializingBean.afterPropertiesSet(), invokeCustomInitMethod()中执行初始化方法<init-method>
+				//papa Step4: postProcessAfterInitialization,可能返回一个proxy
+				exposedObject = initializeBean(beanName, exposedObject, mbd);
 			}
 		}
 		catch (Throwable ex) {
@@ -555,12 +566,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 		}
 
 		if (earlySingletonExposure) {
+			//papa allowEarlyReference=false的含义是：只查找singletonObjects/earlySingletonObjects，不查找singletonFactories
 			Object earlySingletonReference = getSingleton(beanName, false);
 			if (earlySingletonReference != null) {
+				//papa exposedObject ！= bean 说明initializeBean方法中由postProcessor返回了一个Proxy（或者其他对象）
 				if (exposedObject == bean) {
 					exposedObject = earlySingletonReference;
 				}
-				else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {//papi ??????????
+				//pipa allowRawInjectionDespiteWrapping默认为false，即不允许bean被wrap了,还能inject raw instance
+				else if (!this.allowRawInjectionDespiteWrapping && hasDependentBean(beanName)) {
 					String[] dependentBeans = getDependentBeans(beanName);
 					Set<String> actualDependentBeans = new LinkedHashSet<String>(dependentBeans.length);
 					for (String dependentBean : dependentBeans) {
@@ -568,6 +582,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 							actualDependentBeans.add(dependentBean);
 						}
 					}
+					//papa 条件为：如果dependentBean已经存在（在alreadyCreated中已经存在），且是programmer所设定的bean，就抛出异常。
+					//papa eager-init导致关联的bean没有使用相同的bean实例，终止createBean
 					if (!actualDependentBeans.isEmpty()) {
 						throw new BeanCurrentlyInCreationException(beanName,
 								"Bean with name '" + beanName + "' has been injected into other beans [" +
@@ -575,7 +591,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 								"] in its raw version as part of a circular reference, but has eventually been " +
 								"wrapped. This means that said other beans do not use the final version of the " +
 								"bean. This is often the result of over-eager type matching - consider using " +
-								"'getBeanNamesOfType' with the 'allowEagerInit' flag turned off, for example.");
+								"'getBeanNamesOfType' with the 'allowEagerInit' flag turned off, for example.");//papi allowEagerInit原理？？？
 					}
 				}
 			}
@@ -583,7 +599,8 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Register bean as disposable.
 		try {
-			registerDisposableBeanIfNecessary(beanName, bean, mbd); //papi disposable Bean???????
+			//papa 注册DestructionAwareBeanPostProcessor/<destroy-method>
+			registerDisposableBeanIfNecessary(beanName, bean, mbd);
 		}
 		catch (BeanDefinitionValidationException ex) {
 			throw new BeanCreationException(mbd.getResourceDescription(), beanName, "Invalid destruction signature", ex);
@@ -816,6 +833,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 	 * @param bean the raw bean instance
 	 * @return the object to expose as bean reference
 	 */
+	//papa 如果有SmartInstantiationAwareBeanPostProcessor且getEarlyBeanReference()不为空，返回其early reference；否则返回bean本身
 	protected Object getEarlyBeanReference(String beanName, RootBeanDefinition mbd, Object bean) {
 		Object exposedObject = bean;
 		if (bean != null && !mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
@@ -1167,11 +1185,9 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		// Give any InstantiationAwareBeanPostProcessors the opportunity to modify the
 		// state of the bean before properties are set. This can be used, for example,
-		// to support styles of field injection.
+		// to support styles of field injection.//pipa 比如说@Autowired
 		boolean continueWithPropertyPopulation = true;
 
-		//papi createBean中不已经处理过了吗????
-		//papi BD.isSynthetic()字段的意思???
 		if (!mbd.isSynthetic() && hasInstantiationAwareBeanPostProcessors()) {
 			for (BeanPostProcessor bp : getBeanPostProcessors()) {
 				if (bp instanceof InstantiationAwareBeanPostProcessor) {
@@ -1190,18 +1206,20 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			return;
 		}
 
-		//papa AutoWire 实例中的属性,也包括bean,先到newPvs中
+		//papa AutoWire实例中的<ref>属性（其他bean）到newPvs中
 		if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_NAME ||
 				mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_TYPE) {
-			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);
+			MutablePropertyValues newPvs = new MutablePropertyValues(pvs);//papa Deep Copy
 
 			// Add property values based on autowire by name if applicable.
 			if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_NAME) {
+				//papa 原理：根据property属性名获得bean实例并inject
 				autowireByName(beanName, mbd, bw, newPvs);
 			}
 
 			// Add property values based on autowire by type if applicable.
 			if (mbd.getResolvedAutowireMode() == RootBeanDefinition.AUTOWIRE_BY_TYPE) {
+				//papa 原理：获得多个candidate并筛选 ......to be continued
 				autowireByType(beanName, mbd, bw, newPvs);
 			}
 
@@ -1225,11 +1243,12 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 					}
 				}
 			}
+			//papa @Deprecated   <dependency-check>在Spring2.5+中已经废弃，可以用@Required同样的含义
 			if (needsDepCheck) {
 				checkDependencies(beanName, mbd, filteredPds, pvs);
 			}
 		}
-		//papa 最后再把属性写到实例中
+		//papa 最后写到beanWrapper中
 		applyPropertyValues(beanName, mbd, bw, pvs);
 	}
 
@@ -1290,13 +1309,15 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 			try {
 				PropertyDescriptor pd = bw.getPropertyDescriptor(propertyName);
 				// Don't try autowiring by type for type Object: never makes sense,
-				// even if it technically is a unsatisfied, non-simple property.
-				//papa 不要试图装配Object类型,没有意义
+				// even if it technically is a unsatisfied, non-simple property.//papa 不要试图装配Object类型,没有意义
 				if (Object.class != pd.getPropertyType()) {
 					MethodParameter methodParam = BeanUtils.getWriteMethodParameter(pd);//papa 获得setter方法的参数
 					// Do not allow eager init for type matching in case of a prioritized post-processor.
+					//papa 因为doCreateBean()时可能会报错
+					/** @see org/springframework/beans/factory/support/AbstractAutowireCapableBeanFactory.java:587 */
 					boolean eager = !PriorityOrdered.class.isAssignableFrom(bw.getWrappedClass());
 					DependencyDescriptor desc = new AutowireByTypeDependencyDescriptor(methodParam, eager);
+					//papa 选出autowire的值，可以autowired的beanName会写入入参中
 					Object autowiredArgument = resolveDependency(desc, beanName, autowiredBeanNames, converter);
 					if (autowiredArgument != null) {
 						pvs.add(propertyName, autowiredArgument);
@@ -1415,6 +1436,7 @@ public abstract class AbstractAutowireCapableBeanFactory extends AbstractBeanFac
 
 		int dependencyCheck = mbd.getDependencyCheck();
 		for (PropertyDescriptor pd : pds) {
+			//papa PropertyDescriptor应该出现的属性名没有在PropertyValues中存在相应的属性值，则抛出异常
 			if (pd.getWriteMethod() != null && !pvs.contains(pd.getName())) {
 				boolean isSimple = BeanUtils.isSimpleProperty(pd.getPropertyType());
 				boolean unsatisfied = (dependencyCheck == RootBeanDefinition.DEPENDENCY_CHECK_ALL) ||

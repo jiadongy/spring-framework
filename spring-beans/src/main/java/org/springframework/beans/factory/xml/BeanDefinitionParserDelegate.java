@@ -27,6 +27,8 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.springframework.beans.factory.annotation.AutowiredAnnotationBeanPostProcessor;
+import org.springframework.beans.factory.annotation.RequiredAnnotationBeanPostProcessor;
 import org.w3c.dom.Element;
 import org.w3c.dom.NamedNodeMap;
 import org.w3c.dom.Node;
@@ -1407,11 +1409,21 @@ public class BeanDefinitionParserDelegate {
 	public BeanDefinition parseCustomElement(Element ele, BeanDefinition containingBd) {
 		//papa namespaceURI是 eg.<spring xmlns:c="http://www.baidu.com"/>
 		String namespaceUri = getNamespaceURI(ele);
+		//papa 在此处解析xml tag,如<component-scan>和<annotation-config>
+		/** @see org.springframework.beans.factory.xml.DefaultNamespaceHandlerResolver#resolve(java.lang.String) */
+		/** @see org.springframework.context.config.ContextNamespaceHandler */ //papa eg。发现并初始化nameSpaceHandler
 		NamespaceHandler handler = this.readerContext.getNamespaceHandlerResolver().resolve(namespaceUri);
 		if (handler == null) {
 			error("Unable to locate Spring NamespaceHandler for XML schema namespace [" + namespaceUri + "]", ele);
 			return null;
 		}
+		//papa <annotation-config>
+		/** @see org.springframework.context.annotation.AnnotationConfigUtils#registerAnnotationConfigProcessors */
+		/** @see RequiredAnnotationBeanPostProcessor*/
+		/** @see AutowiredAnnotationBeanPostProcessor */
+		//papa <component-scan>
+        /** @see org.springframework.context.annotation.ComponentScanBeanDefinitionParser */
+        /** @see org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider#findCandidateComponents(java.lang.String)*/
 		return handler.parse(ele, new ParserContext(this.readerContext, this, containingBd));
 	}
 

@@ -241,10 +241,12 @@ public class ClassPathBeanDefinitionScanner extends ClassPathScanningCandidateCo
 	 * @param basePackages the packages to check for annotated classes
 	 * @return set of beans registered if any for tooling registration purposes (never {@code null})
 	 */
-	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {//papa placeHolder=bd+beanName+alias[],支持innerBena
+	protected Set<BeanDefinitionHolder> doScan(String... basePackages) {//papa placeHolder=bd+beanName+alias[],支持innerBean
 		Assert.notEmpty(basePackages, "At least one base package must be specified");
 		Set<BeanDefinitionHolder> beanDefinitions = new LinkedHashSet<BeanDefinitionHolder>();
 		for (String basePackage : basePackages) {
+			//papa 发现潜在的@Component(包含@Controller，@Service，@Repository)
+			/** @see ClassPathScanningCandidateComponentProvider#registerDefaultFilters() */
 			Set<BeanDefinition> candidates = findCandidateComponents(basePackage);
 			for (BeanDefinition candidate : candidates) {
 				ScopeMetadata scopeMetadata = this.scopeMetadataResolver.resolveScopeMetadata(candidate);

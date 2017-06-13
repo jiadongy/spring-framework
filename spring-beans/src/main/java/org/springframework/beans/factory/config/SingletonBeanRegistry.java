@@ -35,7 +35,7 @@ public interface SingletonBeanRegistry {
 	/**
 	 * Register the given existing object as singleton in the bean registry,
 	 * under the given bean name.
-	 * <p>The given instance is supposed to be fully initialized; the registry papi 用于注册单例对象,那prototype用什么registry?
+	 * <p>The given instance is supposed to be fully initialized; the registry papi 用于注册单例对象实例到registry,那prototype用什么registry?
 	 * will not perform any initialization callbacks (in particular, it won't
 	 * call InitializingBean's {@code afterPropertiesSet} method).
 	 * The given instance will not receive any destruction callbacks

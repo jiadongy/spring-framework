@@ -277,8 +277,7 @@ public class ClassPathScanningCandidateComponentProvider implements EnvironmentC
 				if (resource.isReadable()) {
 					try {
 						MetadataReader metadataReader = this.metadataReaderFactory.getMetadataReader(resource);
-						//papi 对spring内部类也要看是不是在用户设置的exclude-class中 ????
-						//pipa 其实metadataReader中包含了目标class的metadata,不是字面上的意思
+						//papa @Component 包含在includeFilter中，excludeFilter由用户定义
 						if (isCandidateComponent(metadataReader)) {
 							ScannedGenericBeanDefinition sbd = new ScannedGenericBeanDefinition(metadataReader);
 							sbd.setResource(resource);

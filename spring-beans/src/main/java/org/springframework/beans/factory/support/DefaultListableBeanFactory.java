@@ -1002,18 +1002,18 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			Set<String> autowiredBeanNames, TypeConverter typeConverter) throws BeansException {
 
 		descriptor.initParameterNameDiscovery(getParameterNameDiscoverer());
-		if (descriptor.getDependencyType().equals(javaUtilOptionalClass)) {
+		if (descriptor.getDependencyType().equals(javaUtilOptionalClass)) {//papa jdk1.8的optional类
 			return new OptionalDependencyFactory().createOptionalDependency(descriptor, beanName);
 		}
 		else if (ObjectFactory.class == descriptor.getDependencyType() ||
-				ObjectProvider.class == descriptor.getDependencyType()) {
+				ObjectProvider.class == descriptor.getDependencyType()) {//papa Spring内置的类
 			return new DependencyObjectProvider(descriptor, beanName);
 		}
-		else if (javaxInjectProviderClass == descriptor.getDependencyType()) {
+		else if (javaxInjectProviderClass == descriptor.getDependencyType()) {//papa JSR-330标准的注解。javax.inject @Name @Inject
 			return new Jsr330ProviderFactory().createDependencyProvider(descriptor, beanName);
 		}
 		else {
-			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(descriptor, beanName);
+			Object result = getAutowireCandidateResolver().getLazyResolutionProxyIfNecessary(descriptor, beanName);//papi ？？？
 			if (result == null) {
 				result = doResolveDependency(descriptor, beanName, autowiredBeanNames, typeConverter);
 			}
@@ -1025,8 +1025,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			Set<String> autowiredBeanNames, TypeConverter typeConverter) throws BeansException {
 
 		Class<?> type = descriptor.getDependencyType();
+		//papa @Qualifier会返回非空值，普通的autowire对应的GenericTypeAwareAutowireCandidateResolver返回null
 		Object value = getAutowireCandidateResolver().getSuggestedValue(descriptor);
 		if (value != null) {
+		    //papa 解析SpringEL 表达式
 			if (value instanceof String) {
 				String strVal = resolveEmbeddedValue((String) value);
 				BeanDefinition bd = (beanName != null && containsBean(beanName) ? getMergedBeanDefinition(beanName) : null);
@@ -1038,6 +1040,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 					converter.convertIfNecessary(value, type, descriptor.getMethodParameter()));
 		}
 
+		//papa 解析Array、Collection、Map类型bean的autowireCandidates，按照一定规则返回第一个
 		Object multipleBeans = resolveMultipleBeans(descriptor, beanName, autowiredBeanNames, typeConverter);
 		if (multipleBeans != null) {
 			return multipleBeans;
@@ -1046,17 +1049,17 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		InjectionPoint previousInjectionPoint = ConstructorResolver.setCurrentInjectionPoint(descriptor);
 		try {
 			Map<String, Object> matchingBeans = findAutowireCandidates(beanName, type, descriptor);
-			if (matchingBeans.isEmpty()) {
+			if (matchingBeans.isEmpty()) {//papa 如果没有候选，且@Required，throw NoSuchBeanDefinitionException
 				if (descriptor.isRequired()) {
 					raiseNoSuchBeanDefinitionException(type, descriptor.getResolvableType().toString(), descriptor);
 				}
 				return null;
 			}
 			if (matchingBeans.size() > 1) {
-				String primaryBeanName = determineAutowireCandidate(matchingBeans, descriptor);
+				String primaryBeanName = determineAutowireCandidate(matchingBeans, descriptor);//papi 如何决定candidate的顺序？？？？
 				if (primaryBeanName == null) {
 					if (descriptor.isRequired() || !indicatesMultipleBeans(type)) {
-						return descriptor.resolveNotUnique(type, matchingBeans);
+						return descriptor.resolveNotUnique(type, matchingBeans);//papa 无法决定primary candidate，throw NoUniqueBeanDefinitionException
 					}
 					else {
 						// In case of an optional Collection/Map, silently ignore a non-unique case:
@@ -1078,7 +1081,7 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 			return entry.getValue();
 		}
 		finally {
-			ConstructorResolver.setCurrentInjectionPoint(previousInjectionPoint);
+			ConstructorResolver.setCurrentInjectionPoint(previousInjectionPoint);//papi ？？？？？？
 		}
 	}
 
@@ -1187,15 +1190,17 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 	 * @see #autowireByType
 	 * @see #autowireConstructor
 	 */
-	protected Map<String, Object> findAutowireCandidates(
+	protected Map<String, Object> findAutowireCandidates(//papi ????
 			String beanName, Class<?> requiredType, DependencyDescriptor descriptor) {
 
 		String[] candidateNames = BeanFactoryUtils.beanNamesForTypeIncludingAncestors(
 				this, requiredType, true, descriptor.isEager());
 		Map<String, Object> result = new LinkedHashMap<String, Object>(candidateNames.length);
+		//papa
 		for (Class<?> autowiringType : this.resolvableDependencies.keySet()) {
 			if (autowiringType.isAssignableFrom(requiredType)) {
 				Object autowiringValue = this.resolvableDependencies.get(autowiringType);
+				//papa 如果autowiringValue是ObjectFactory类型并且和requiredType类型不符合的话，走ObjectFactory.getObject()，否则直接返回autowiringValue
 				autowiringValue = AutowireUtils.resolveAutowiringValue(autowiringValue, requiredType);
 				if (requiredType.isInstance(autowiringValue)) {
 					result.put(ObjectUtils.identityToString(autowiringValue), autowiringValue);
@@ -1205,10 +1210,10 @@ public class DefaultListableBeanFactory extends AbstractAutowireCapableBeanFacto
 		}
 		for (String candidateName : candidateNames) {
 			if (!isSelfReference(beanName, candidateName) && isAutowireCandidate(candidateName, descriptor)) {
-				result.put(candidateName, descriptor.resolveCandidate(candidateName, this));
+				result.put(candidateName, descriptor.resolveCandidate(candidateName, this));//papa 直接getBean()
 			}
 		}
-		if (result.isEmpty() && !indicatesMultipleBeans(requiredType)) {
+		if (result.isEmpty() && !indicatesMultipleBeans(requiredType)) {//papa multipleBean即Array、Collection、Map类型
 			// Consider fallback matches if the first pass failed to find anything...
 			DependencyDescriptor fallbackDescriptor = descriptor.forFallbackMatch();
 			for (String candidateName : candidateNames) {
